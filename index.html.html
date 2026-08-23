@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NCCB Sales Team Command Center</title>
+<style>
+:root{
+  --nav:#071b35;--blue:#1454a3;--blue2:#1e68c9;--red:#c91e28;--green:#168044;
+  --orange:#ef7100;--purple:#6240a5;--ink:#142033;--muted:#66758a;--line:#dce3eb;
+  --bg:#f3f6fa;--card:#fff;--shadow:0 10px 28px rgba(17,38,68,.09)
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+.hidden{display:none!important}
+.login-page{min-height:100vh;display:grid;place-items:center;background:#fbf6f1;padding:20px}
+.login-card{width:min(430px,94vw);background:#fff;border:2px solid var(--orange);border-radius:11px;padding:28px 24px 32px;box-shadow:0 12px 36px rgba(100,55,10,.08)}
+.login-logo{display:block;width:130px;height:auto;margin:0 auto 22px}
+.login-card h1{font-size:19px;color:#b55700;margin:0 0 14px;text-align:center;letter-spacing:.2px}
+.login-card label{display:block;color:#677180;font-size:13px;margin:12px 0 5px}
+.login-card input,.login-card select{width:100%;height:36px;border:1px solid #d4d9df;border-radius:5px;padding:0 10px;background:#fff}
+.login-btn{display:block;margin:16px auto 0;border:0;background:var(--orange);color:#fff;border-radius:5px;padding:9px 18px}
+.login-msg{min-height:20px;margin-top:12px;text-align:center;font-size:12px;color:var(--red)}
+
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:236px;background:linear-gradient(180deg,#071b35,#06152a);color:#fff;z-index:30;display:flex;flex-direction:column}
+.brand{padding:20px;border-bottom:1px solid rgba(255,255,255,.1)} .brand img{width:88px;background:white;border-radius:5px;padding:3px}
+.brand b{display:block;color:#fff;margin-top:8px;font-size:12px}
+.nav{padding:13px 9px;display:grid;gap:3px} .nav button{text-align:left;border:0;background:transparent;color:#dce7f4;border-radius:7px;padding:11px 12px;font-weight:700}
+.nav button.active,.nav button:hover{background:#0b66c8;color:#fff}
+.userbox{margin-top:auto;padding:15px;border-top:1px solid rgba(255,255,255,.1);font-size:12px} .userbox small{display:block;color:#a9bbcf;margin-top:4px}
+.main{margin-left:236px;min-height:100vh}
+.topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:11px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+.topbar h1{font-size:20px;margin:0} .topbar p{font-size:11px;color:var(--muted);margin:3px 0 0} .top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.top-actions input{border:1px solid var(--line);border-radius:6px;padding:8px} .badge{font-size:10px;border-radius:99px;padding:6px 8px;font-weight:900;background:#e9f7ef;color:#17653d}
+.btn{border:0;border-radius:6px;padding:9px 12px;font-weight:800} .btn.primary{background:var(--blue);color:#fff} .btn.red{background:var(--red);color:#fff} .btn.green{background:var(--green);color:#fff} .btn.ghost{border:1px solid var(--line);background:#fff}
+.content{padding:17px 19px 30px} .grid4{display:grid;grid-template-columns:1.15fr .75fr 1fr 1fr;gap:11px} .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-top:11px} .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.card{background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);overflow:hidden} .card-head{padding:12px 14px;color:#fff;font-weight:900} .card-body{padding:14px}
+.redh{background:var(--red)}.blueh{background:var(--blue2)}.greenh{background:var(--green)}.orangeh{background:var(--orange)}.purpleh{background:var(--purple)}
+.metric-table{width:100%;border-collapse:collapse;font-size:12px} .metric-table th,.metric-table td{border:1px solid var(--line);padding:8px 5px;text-align:center} .metric-table th{font-size:9px;background:#f7f9fb;text-transform:uppercase;color:#58687c} .metric-table td:first-child{text-align:left;font-weight:800}
+.goal-line{font-size:13px;font-weight:800;margin-bottom:11px} .goal-line b{font-size:30px;color:var(--red)} .num{font-size:19px;font-weight:900;color:var(--blue)} .rednum{color:var(--red)}
+.progress{height:10px;background:#e8edf3;border-radius:99px;overflow:hidden;margin-top:10px} .progress i{display:block;height:100%;background:var(--red)} .tiny{font-size:10px;color:var(--muted)}
+.beat{display:grid;gap:11px;text-align:center} .beat strong{font-size:28px;color:var(--purple)} .beat-message{border-top:1px solid var(--line);padding-top:13px;color:var(--purple);font-weight:900}
+.person{border:1px solid var(--line);border-radius:7px;margin-bottom:9px;overflow:hidden} .person h3{font-size:12px;color:var(--blue);margin:0;padding:8px;background:#f8fbff} .stats{display:grid;grid-template-columns:repeat(4,1fr)} .stats div{padding:8px 4px;text-align:center;border-right:1px solid var(--line)} .stats div:last-child{border-right:0} .stats small{display:block;font-size:8px;color:var(--muted);text-transform:uppercase} .stats b{font-size:19px}
+.rule{display:flex;justify-content:space-between;padding:8px 2px;border-bottom:1px solid var(--line);font-size:12px} .rule b{color:var(--green)}
+.mission-item{display:grid;grid-template-columns:31px 1fr 18px;gap:9px;align-items:center;width:100%;background:#fff;border:0;border-bottom:1px solid var(--line);padding:9px 2px;text-align:left} .mission-item:hover{background:#f2fbf5} .mission-icon{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:#fff;font-size:11px;font-weight:900} .mission-item b{font-size:11px;color:var(--green)} .mission-item small{display:block;color:var(--muted);margin-top:2px}
+.trust{padding:22px;text-align:center} .trust .heart{font-size:46px;color:var(--red)} .trust h2{font-size:20px} .trust h2 span{color:var(--green)} .trust p{font-size:12px;color:var(--muted);line-height:1.5}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:11px} .kpi{background:#fff;border:1px solid var(--line);border-radius:8px;padding:13px;box-shadow:var(--shadow)} .kpi small{text-transform:uppercase;color:var(--muted);font-size:9px;font-weight:900} .kpi b{display:block;font-size:25px;margin-top:5px}
+.section-title{margin:0 0 12px;font-size:20px} .form{display:grid;gap:10px} .form label{font-size:10px;font-weight:900;color:#5d6c80} .form input,.form select,.form textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:9px;background:#fff} .form textarea{min-height:90px}
+.table-wrap{overflow:auto} table.data{width:100%;border-collapse:collapse;background:#fff} table.data th,table.data td{padding:9px;border-bottom:1px solid var(--line);font-size:11px;text-align:left} table.data th{font-size:9px;text-transform:uppercase;color:var(--muted);background:#f8fafc}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px} .tabs button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:8px 10px;font-weight:800;font-size:11px} .tabs button.active{background:var(--blue);color:#fff}
+.permission-note{padding:10px;border-radius:6px;background:#f6f8fb;color:#627084;font-size:11px;line-height:1.45}
+dialog{width:min(680px,92vw);border:0;border-radius:10px;padding:0;box-shadow:0 30px 80px rgba(0,0,0,.35)} dialog::backdrop{background:rgba(0,0,0,.6)} .dialog-in{padding:24px} .dialog-close{position:absolute;right:10px;top:7px;border:0;background:none;font-size:26px}
+.toast{position:fixed;right:18px;bottom:18px;background:#0d2c50;color:#fff;padding:11px 14px;border-radius:7px;display:none;z-index:99;font-size:12px} .toast.show{display:block}
+@media(max-width:1150px){.grid4{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.grid4,.grid3,.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<section id="loginPage" class="login-page">
+  <form id="loginForm" class="login-card">
+    <img class="login-logo" src="data:image/png;base64,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" alt="NCCB logo">
+    <h1>NCCB Sales Team Command Center</h1>
+
+    <label>Login As</label>
+    <select id="loginRole">
+      <option value="SalesRep">Sales Rep</option>
+      <option value="Admin">Admin</option>
+      <option value="SuperAdmin">Super Admin</option>
+    </select>
+
+    <label id="idLabel">Rep ID (200-250)</label>
+    <input id="loginId" autocomplete="username" placeholder="e.g. 201" required>
+
+    <label>PIN</label>
+    <input id="loginPin" type="password" inputmode="numeric" autocomplete="current-password" required>
+
+    <button class="login-btn" type="submit">Log In</button>
+    <div id="loginMsg" class="login-msg"></div>
+  </form>
+</section>
+
+<div id="appShell" class="hidden">
+  <aside class="sidebar">
+    <div class="brand"><img src="data:image/png;base64,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" alt="NCCB logo"><b>SALES COMMAND CENTER</b></div>
+    <nav class="nav" id="mainNav">
+      <button class="active" data-view="dashboard">⌂ Dashboard</button>
+      <button data-view="scoreboard">▥ Team Scoreboard</button>
+      <button data-view="activity">▤ Activity Entry</button>
+      <button data-view="mission">★ Today's Mission</button>
+      <button data-view="commission">$ Commission Tracker</button>
+      <button class="admin-only" data-view="admin">⚙ Admin</button>
+      <button class="super-only" data-view="superadmin">🔐 Super Admin</button>
+    </nav>
+    <div class="userbox"><b id="userName"></b><small id="userRole"></small><button id="logoutBtn" class="btn ghost" style="margin-top:10px;width:100%">Log Out</button></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h1>★ NCCB SALES TEAM COMMAND CENTER ★</h1><p id="dateText"></p></div>
+      <div class="top-actions">
+        <input id="workDate" type="date">
+        <button id="refreshBtn" class="btn ghost">↻ Refresh</button>
+        <span id="liveBadge" class="badge">CONNECTED</span>
+      </div>
+    </header>
+    <div id="content" class="content"></div>
+  </main>
+</div>
+
+<dialog id="modal">
+  <button class="dialog-close" onclick="document.getElementById('modal').close()">×</button>
+  <div id="modalBody"></div>
+</dialog>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ================================================================
+   CONFIGURATION
+   Paste your deployed Google Apps Script Web App URL here.
+   ================================================================ */
+const GOOGLE_APPS_SCRIPT_URL = ""; // https://script.google.com/macros/s/.../exec
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (a,b) => b ? Math.round((Number(a)||0)/(Number(b)||0)*100) : 0;
+const money = n => "$"+Number(n||0).toFixed(2);
+
+let session = JSON.parse(sessionStorage.getItem("nccbSession") || "null");
+let state = null;
+let view = "dashboard";
+let adminTab = "kpis";
+let superTab = "reps";
+
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
+
+async function gas(action,payload={}){
+  if(!GOOGLE_APPS_SCRIPT_URL) throw new Error("GOOGLE_APPS_SCRIPT_URL is blank in index.html.");
+  const res=await fetch(GOOGLE_APPS_SCRIPT_URL,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({action,token:session?.token||"",...payload})
+  });
+  const data=await res.json();
+  if(!data.ok) throw new Error(data.error||"Request failed");
+  return data;
+}
+
+function setRoleUI(){
+  const role=session?.role||"";
+  document.querySelectorAll(".admin-only").forEach(x=>x.classList.toggle("hidden",!(role==="Admin"||role==="SuperAdmin")));
+  document.querySelectorAll(".super-only").forEach(x=>x.classList.toggle("hidden",role!=="SuperAdmin"));
+  $("#userName").textContent=session?.name||"";
+  $("#userRole").textContent=role==="SalesRep" ? "Sales Representative" : role;
+}
+
+async function login(e){
+  e.preventDefault();
+  $("#loginMsg").textContent="";
+  try{
+    const data=await gasNoSession("login",{
+      loginType:$("#loginRole").value,
+      id:$("#loginId").value.trim(),
+      pin:$("#loginPin").value.trim()
+    });
+    session={token:data.token,role:data.role,id:data.id,name:data.name};
+    sessionStorage.setItem("nccbSession",JSON.stringify(session));
+    $("#loginPage").classList.add("hidden");
+    $("#appShell").classList.remove("hidden");
+    setRoleUI();
+    await loadDashboard();
+  }catch(err){$("#loginMsg").textContent=err.message}
+}
+async function gasNoSession(action,payload={}){
+  if(!GOOGLE_APPS_SCRIPT_URL) throw new Error("Paste the Google Apps Script Web App URL into index.html first.");
+  const res=await fetch(GOOGLE_APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action,...payload})});
+  const data=await res.json(); if(!data.ok) throw new Error(data.error||"Login failed"); return data;
+}
+
+function logout(){sessionStorage.removeItem("nccbSession");session=null;state=null;$("#appShell").classList.add("hidden");$("#loginPage").classList.remove("hidden");$("#loginPin").value="";}
+
+async function loadDashboard(){
+  try{
+    const data=await gas("dashboard",{date:$("#workDate").value});
+    state=data;
+    render();
+  }catch(err){
+    if(/session|unauthorized|expired/i.test(err.message)) logout();
+    toast(err.message);
+  }
+}
+
+function head(title,color,body){return `<section class="card"><div class="card-head ${color}">${title}</div><div class="card-body">${body}</div></section>`}
+function challengeCard(){
+  const s=state.settings,m=state.metrics,g=Number(s.TEAM_ENROLLMENT_GOAL||6);
+  const perGoal=Number(s.REP_ENROLLMENT_GOAL||3);
+  return head("🔥 DAILY SALES CHALLENGE","redh",`
+  <div class="goal-line">TEAM GOAL: <b>${g}</b> QUALIFIED ENROLLMENTS</div>
+  <table class="metric-table"><thead><tr><th>Employee</th><th>Goal</th><th>Actual</th><th>Status</th></tr></thead><tbody>
+  ${state.employees.map(e=>`<tr><td>${esc(e.name)}</td><td>${perGoal}</td><td class="num">${e.enrollments}</td><td>${e.enrollments>=perGoal?"ON PACE":"KEEP GOING"}</td></tr>`).join("")}
+  <tr><td>TEAM TOTAL</td><td>${g}</td><td class="num rednum">${m.enrollments}</td><td>${m.enrollments>=g?"GOAL HIT":"KEEP PUSHING"}</td></tr></tbody></table>
+  <div class="progress"><i style="width:${Math.min(100,pct(m.enrollments,g))}%"></i></div><div class="tiny">${pct(m.enrollments,g)}% complete</div>`)}
+function beatCard(){return head("🚀 BEAT YESTERDAY","purpleh",`<div class="beat"><div>YESTERDAY<br><strong>${state.yesterday}</strong></div><div>TODAY<br><strong>${state.metrics.enrollments}</strong></div><div>GOAL<br><strong>${state.settings.TEAM_ENROLLMENT_GOAL||6}</strong></div><div class="beat-message">${state.metrics.enrollments>state.yesterday?"★ YOU BEAT YESTERDAY!":"LET'S BEAT YESTERDAY!"}</div></div>`)}
+function scoreCard(){
+  return head("▮ DAILY SCOREBOARD","blueh",state.employees.map(e=>`<div class="person"><h3>${esc(e.name)}</h3><div class="stats">
+  <div><small>Calls</small><b>${e.calls}</b></div><div><small>Conversations</small><b>${e.conversations}</b></div><div><small>Qualified</small><b>${e.qualified}</b></div><div><small>Enrollments</small><b>${e.enrollments}</b></div>
+  </div></div>`).join(""))}
+function commissionsCard(){
+ return head("💵 COMMISSION / FEES","greenh",state.commissionRules.map(r=>`<div class="rule"><span>${esc(r.service)}</span><span>Commission <b>${money(r.commission)}</b> &nbsp; Fee <b>${money(r.fee)}</b></span></div>`).join(""))}
+function missionCard(){
+ return head("★ TODAY'S MISSION","greenh",state.mission.map((m,i)=>`<button class="mission-item" data-mission="${i}"><span class="mission-icon">${i+1}</span><span><b>${esc(m.title)}</b><small>${esc(m.definition.slice(0,75))}...</small></span><span>›</span></button>`).join(""))}
+function trustCard(){
+ return `<section class="card"><div class="trust"><div class="heart">♡</div><h2>${esc(state.trust.headline)}<br><span>${esc(state.trust.subheadline||"EARN THE CLIENT'S TRUST.")}</span></h2><p>${esc(state.trust.body)}</p>${session.role!=="SalesRep"?'<button class="btn red" data-action="edit-trust">Edit Message</button>':""}</div></section>`}
+function kpis(){
+ const m=state.metrics,s=state.settings;
+ const arr=[
+ ["TOTAL CALLS",m.calls,s.TEAM_CALL_GOAL],["CONVERSATIONS",m.conversations,s.TEAM_CONVERSATION_GOAL],
+ ["QUALIFIED OPPORTUNITIES",m.qualified,s.TEAM_QUALIFIED_GOAL],["ENROLLMENTS",m.enrollments,s.TEAM_ENROLLMENT_GOAL],["GOAL %",pct(m.enrollments,s.TEAM_ENROLLMENT_GOAL),100]
+ ];
+ return `<div class="kpis">${arr.map(x=>`<div class="kpi"><small>${x[0]}</small><b>${x[0]==="GOAL %"?x[1]+"%":x[1]}</b><div class="tiny">Goal: ${x[2]??"—"}</div></div>`).join("")}</div>`}
+function dashboardView(){return `<div class="grid4">${challengeCard()}${beatCard()}${scoreCard()}${commissionsCard()}</div><div class="grid3">${missionCard()}${head("💬 OBJECTION OF THE DAY","orangeh",'<h3 style="text-align:center">“I NEED TO THINK ABOUT IT.”</h3><ul><li>Acknowledge the concern</li><li>Reflect their goals</li><li>Refocus on benefits</li><li>Ask for a decision</li></ul>')}${trustCard()}</div>${kpis()}`}
+function scoreboardView(){return `<h2 class="section-title">Team Scoreboard</h2>${scoreCard()}${kpis()}`}
+function activityView(){
+ const reps=session.role==="SalesRep"?state.employees.filter(e=>String(e.id)===String(session.id)):state.employees;
+ return `<h2 class="section-title">Activity Entry</h2><div class="grid2"><section class="card"><div class="card-head blueh">CAPTURE ACTIVITY</div><div class="card-body form">
+ <label>REP<select id="actRep">${reps.map(e=>`<option value="${esc(e.id)}">${esc(e.name)}</option>`).join("")}</select></label>
+ <label>EVENT<select id="actType"><option>CALL</option><option>CONVERSATION</option><option>QUALIFIED_OPPORTUNITY</option><option>ENROLLMENT</option><option>DMP_CONVERSION</option><option>REFUND</option><option>CANCELLATION</option></select></label>
+ <label>QUANTITY<input id="actQty" type="number" value="1" min="1"></label><button class="btn primary" data-action="save-activity">Save</button></div></section><section class="card"><div class="card-head greenh">TODAY'S KPIs</div><div class="card-body">${kpis()}</div></section></div>`}
+function missionView(){return `<h2 class="section-title">Today's Mission</h2><div class="grid2">${missionCard()}${trustCard()}</div>`}
+function commissionView(){return `<h2 class="section-title">Commission Tracker</h2>${commissionsCard()}`}
+
+function adminView(){
+ if(!(session.role==="Admin"||session.role==="SuperAdmin")) return `<div class="permission-note">Admin access required.</div>`;
+ const tabs=[["kpis","KPIs & Goals"],["commissions","Commissions & Fees"],["content","Mission & Messaging"],["recognition","Recognition"]];
+ return `<h2 class="section-title">Admin Backend</h2><div class="tabs">${tabs.map(t=>`<button data-admin-tab="${t[0]}" class="${adminTab===t[0]?"active":""}">${t[1]}</button>`).join("")}</div>${adminTabContent()}`;
+}
+function adminTabContent(){
+ if(adminTab==="kpis"){
+   const keys=[
+     ["TEAM_CALL_GOAL","Team Call Goal"],["TEAM_CONVERSATION_GOAL","Team Conversation Goal"],["TEAM_QUALIFIED_GOAL","Team Qualified Opportunity Goal"],["TEAM_ENROLLMENT_GOAL","Team Enrollment Goal"],
+     ["REP_CALL_GOAL","Rep Call Goal"],["REP_CONVERSATION_GOAL","Rep Conversation Goal"],["REP_QUALIFIED_GOAL","Rep Qualified Goal"],["REP_ENROLLMENT_GOAL","Rep Enrollment Goal"]
+   ];
+   return `<section class="card"><div class="card-head blueh">EDIT KPI TARGETS</div><div class="card-body form">${keys.map(k=>`<label>${k[1]}<input data-setting="${k[0]}" type="number" value="${esc(state.settings[k[0]]??0)}"></label>`).join("")}<button class="btn primary" data-action="save-kpis">Save KPI Settings</button></div></section>`;
+ }
+ if(adminTab==="commissions"){
+   return `<section class="card"><div class="card-head greenh">COMMISSIONS AND CLIENT FEES</div><div class="card-body table-wrap"><table class="data"><thead><tr><th>Service</th><th>Commission</th><th>Client Fee</th><th>Active</th></tr></thead><tbody>
+   ${state.commissionRules.map((r,i)=>`<tr><td><input data-cr="${i}" data-field="service" value="${esc(r.service)}"></td><td><input data-cr="${i}" data-field="commission" type="number" step=".01" value="${r.commission}"></td><td><input data-cr="${i}" data-field="fee" type="number" step=".01" value="${r.fee}"></td><td><select data-cr="${i}" data-field="active"><option value="TRUE" ${r.active?"selected":""}>TRUE</option><option value="FALSE" ${!r.active?"selected":""}>FALSE</option></select></td></tr>`).join("")}
+   </tbody></table><button class="btn green" data-action="save-commissions" style="margin-top:10px">Save Commission/Fee Rules</button></div></section>`;
+ }
+ if(adminTab==="content"){
+   return `<div class="grid2"><section class="card"><div class="card-head greenh">MISSION CONTENT</div><div class="card-body">${state.mission.map((m,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><b>${esc(m.title)}</b><button class="btn ghost" data-edit-mission="${i}" style="float:right">Edit</button><div class="tiny">${esc(m.definition)}</div></div>`).join("")}</div></section>${trustCard()}</div>`;
+ }
+ return `<section class="card"><div class="card-head blueh">WEEKLY RECOGNITION</div><div class="card-body form">${["TOP_PRODUCER","MOST_IMPROVED","BEST_CALL_QUALITY","TEAM_PLAYER"].map(k=>`<label>${k.replaceAll("_"," ")}<input data-rec="${k}" value="${esc(state.recognition?.[k]||"")}"></label>`).join("")}<button class="btn primary" data-action="save-recognition">Save Recognition</button></div></section>`;
+}
+
+function superAdminView(){
+ if(session.role!=="SuperAdmin") return `<div class="permission-note">Super Admin access required.</div>`;
+ const tabs=[["reps","Sales Reps"],["admins","Admins"],["system","System Controls"]];
+ return `<h2 class="section-title">Super Admin Backend</h2><div class="tabs">${tabs.map(t=>`<button data-super-tab="${t[0]}" class="${superTab===t[0]?"active":""}">${t[1]}</button>`).join("")}</div>${superTabContent()}`;
+}
+function superTabContent(){
+ if(superTab==="reps"){
+   return `<section class="card"><div class="card-head blueh">REP MANAGEMENT</div><div class="card-body table-wrap"><table class="data"><thead><tr><th>RepID</th><th>Name</th><th>Active</th><th>Date Added</th><th>Reset PIN</th></tr></thead><tbody>
+   ${state.repsAdmin.map(r=>`<tr><td>${esc(r.id)}</td><td><input data-rep-id="${esc(r.id)}" data-rfield="name" value="${esc(r.name)}"></td><td><select data-rep-id="${esc(r.id)}" data-rfield="active"><option value="TRUE" ${r.active?"selected":""}>TRUE</option><option value="FALSE" ${!r.active?"selected":""}>FALSE</option></select></td><td>${esc(r.dateAdded||"")}</td><td><input data-rep-id="${esc(r.id)}" data-rfield="pin" placeholder="new PIN"></td></tr>`).join("")}
+   </tbody></table><button class="btn primary" data-action="save-reps" style="margin-top:10px">Save Rep Changes</button></div></section>`;
+ }
+ if(superTab==="admins"){
+   return `<section class="card"><div class="card-head purpleh">ADMIN MANAGEMENT</div><div class="card-body table-wrap"><table class="data"><thead><tr><th>AdminID</th><th>Name</th><th>Role</th><th>Active</th><th>Reset PIN</th></tr></thead><tbody>
+   ${state.adminsAdmin.map(a=>`<tr><td>${esc(a.id)}</td><td><input data-admin-id="${esc(a.id)}" data-afield="name" value="${esc(a.name)}"></td><td><select data-admin-id="${esc(a.id)}" data-afield="role"><option ${a.role==="Admin"?"selected":""}>Admin</option><option ${a.role==="SuperAdmin"?"selected":""}>SuperAdmin</option></select></td><td><select data-admin-id="${esc(a.id)}" data-afield="active"><option value="TRUE" ${a.active?"selected":""}>TRUE</option><option value="FALSE" ${!a.active?"selected":""}>FALSE</option></select></td><td><input data-admin-id="${esc(a.id)}" data-afield="pin" placeholder="new PIN"></td></tr>`).join("")}
+   </tbody></table><button class="btn primary" data-action="save-admins" style="margin-top:10px">Save Admin Changes</button></div></section>`;
+ }
+ return `<section class="card"><div class="card-head redh">SYSTEM CONTROLS</div><div class="card-body"><div class="permission-note"><b>Super Admin only.</b><br>Use this level for administrator accounts, rep access, role assignment, PIN resets, and global configuration. Admin users can manage operating KPIs, commissions, fees, coaching content, and recognition but cannot create/elevate Super Admin access.</div></div></section>`;
+}
+
+function render(){
+ if(!state)return;
+ $("#dateText").textContent=new Date($("#workDate").value+"T12:00:00").toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+ const c=$("#content");
+ c.innerHTML=view==="dashboard"?dashboardView():view==="scoreboard"?scoreboardView():view==="activity"?activityView():view==="mission"?missionView():view==="commission"?commissionView():view==="admin"?adminView():superAdminView();
+ bind();
+}
+function bind(){
+ document.querySelectorAll("[data-mission]").forEach(b=>b.onclick=()=>openMission(+b.dataset.mission));
+ document.querySelectorAll("[data-admin-tab]").forEach(b=>b.onclick=()=>{adminTab=b.dataset.adminTab;render()});
+ document.querySelectorAll("[data-super-tab]").forEach(b=>b.onclick=()=>{superTab=b.dataset.superTab;render()});
+ document.querySelector("[data-action=save-activity]")?.addEventListener("click",saveActivity);
+ document.querySelectorAll("[data-action=edit-trust]").forEach(b=>b.onclick=editTrust);
+ document.querySelectorAll("[data-edit-mission]").forEach(b=>b.onclick=()=>editMission(+b.dataset.editMission));
+ document.querySelector("[data-action=save-kpis]")?.addEventListener("click",saveKpis);
+ document.querySelector("[data-action=save-commissions]")?.addEventListener("click",saveCommissions);
+ document.querySelector("[data-action=save-recognition]")?.addEventListener("click",saveRecognition);
+ document.querySelector("[data-action=save-reps]")?.addEventListener("click",saveReps);
+ document.querySelector("[data-action=save-admins]")?.addEventListener("click",saveAdmins);
+}
+function openMission(i){
+ const m=state.mission[i];$("#modalBody").innerHTML=`<div class="dialog-in"><h2>${esc(m.title)}</h2><h4>Sales meaning</h4><p>${esc(m.definition)}</p><h4>Talk Track</h4><p><b>${esc(m.talkTrack)}</b></p><h4>Coaching Points</h4><ul>${m.points.map(p=>`<li>${esc(p)}</li>`).join("")}</ul></div>`;$("#modal").showModal();
+}
+async function saveActivity(){try{await gas("addActivity",{activity:{employeeId:$("#actRep").value,eventType:$("#actType").value,quantity:+$("#actQty").value||1,date:$("#workDate").value}});toast("Activity saved");await loadDashboard()}catch(e){toast(e.message)}}
+async function editTrust(){
+ const headline=prompt("Headline",state.trust.headline);if(headline===null)return;const subheadline=prompt("Subheadline",state.trust.subheadline||"EARN THE CLIENT'S TRUST.");if(subheadline===null)return;const body=prompt("Message",state.trust.body);if(body===null)return;
+ try{await gas("updateTrust",{content:{headline,subheadline,body}});toast("Message updated");await loadDashboard()}catch(e){toast(e.message)}
+}
+async function editMission(i){
+ const m=state.mission[i],definition=prompt("Sales meaning",m.definition);if(definition===null)return,talkTrack=prompt("Talk track",m.talkTrack);if(talkTrack===null)return;
+ try{await gas("updateMission",{key:m.key,content:{definition,talkTrack,points:m.points}});toast("Mission updated");await loadDashboard()}catch(e){toast(e.message)}
+}
+async function saveKpis(){
+ const settings={};document.querySelectorAll("[data-setting]").forEach(i=>settings[i.dataset.setting]=i.value);
+ try{await gas("saveSettings",{settings});toast("KPI settings saved");await loadDashboard()}catch(e){toast(e.message)}
+}
+async function saveCommissions(){
+ const rows=state.commissionRules.map((r,i)=>({service:document.querySelector(`[data-cr="${i}"][data-field="service"]`).value,commission:+document.querySelector(`[data-cr="${i}"][data-field="commission"]`).value||0,fee:+document.querySelector(`[data-cr="${i}"][data-field="fee"]`).value||0,active:document.querySelector(`[data-cr="${i}"][data-field="active"]`).value==="TRUE"}));
+ try{await gas("saveCommissionRules",{rows});toast("Commission and fee rules saved");await loadDashboard()}catch(e){toast(e.message)}
+}
+async function saveRecognition(){
+ const values={};document.querySelectorAll("[data-rec]").forEach(i=>values[i.dataset.rec]=i.value);
+ try{await gas("saveRecognition",{values});toast("Recognition saved");await loadDashboard()}catch(e){toast(e.message)}
+}
+async function saveReps(){
+ const by={};document.querySelectorAll("[data-rep-id]").forEach(i=>{const id=i.dataset.repId;(by[id]??={id})[i.dataset.rfield]=i.value});
+ try{await gas("saveReps",{rows:Object.values(by)});toast("Rep records saved");await loadDashboard()}catch(e){toast(e.message)}
+}
+async function saveAdmins(){
+ const by={};document.querySelectorAll("[data-admin-id]").forEach(i=>{const id=i.dataset.adminId;(by[id]??={id})[i.dataset.afield]=i.value});
+ try{await gas("saveAdmins",{rows:Object.values(by)});toast("Admin records saved");await loadDashboard()}catch(e){toast(e.message)}
+}
+
+$("#loginRole").addEventListener("change",()=>{$("#idLabel").textContent=$("#loginRole").value==="SalesRep"?"Rep ID (200-250)":"Admin ID"});
+$("#loginForm").addEventListener("submit",login);
+$("#logoutBtn").addEventListener("click",logout);
+$("#refreshBtn").addEventListener("click",loadDashboard);
+$("#workDate").value=new Date().toISOString().slice(0,10);
+$("#workDate").addEventListener("change",loadDashboard);
+document.querySelectorAll("#mainNav button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("#mainNav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");view=b.dataset.view;render()}));
+
+(async function boot(){
+ if(session){
+   $("#loginPage").classList.add("hidden");$("#appShell").classList.remove("hidden");setRoleUI();
+   try{await loadDashboard()}catch(e){logout()}
+ }
+})();
+</script>
+</body>
+</html>
